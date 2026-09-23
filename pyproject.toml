@@ -1,0 +1,33 @@
+[project]
+name = "clip-engine"
+version = "0.0.1"
+description = "Turn long video podcasts into short vertical clips"
+requires-python = ">=3.11"
+
+dependencies = [
+    "yt-dlp>=2024.8.6",
+    "faster-whisper>=1.0",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+# Heavy; only needed for speaker labels and framing.
+diarize = ["pyannote.audio>=3.3", "torch>=2.3"]
+framing = ["opencv-python>=4.10", "scenedetect>=0.6"]
+dev = ["pytest>=8.3", "ruff>=0.6"]
+
+[project.scripts]
+clip = "clip_engine.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["clip_engine*"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

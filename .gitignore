@@ -1,0 +1,20 @@
+# Source media and derived artifacts stay local. Never commit episode files:
+# they are large, and they are not ours to redistribute.
+data/
+*.mp4
+*.wav
+*.mkv
+*.srt
+*.ass
+
+# Labels ARE committed -- they are the point.
+!golden/*.csv
+
+.env
+__pycache__/
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.DS_Store
