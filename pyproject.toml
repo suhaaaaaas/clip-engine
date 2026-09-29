@@ -7,7 +7,11 @@ requires-python = ">=3.11"
 dependencies = [
     "yt-dlp>=2024.8.6",
     "faster-whisper>=1.0",
+    # faster-whisper calls av.open() with an argument PyAV dropped in v15+;
+    # pin below that until faster-whisper catches up.
+    "av<14",
     "numpy>=1.26",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]

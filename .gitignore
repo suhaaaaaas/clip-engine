@@ -1,6 +1,13 @@
 # Source media and derived artifacts stay local. Never commit episode files:
-# they are large, and they are not ours to redistribute.
-data/
+# they are large, and they are not ours to redistribute. Transcripts ARE
+# committed -- they're text, and both of us label off the same one.
+data/*
+!data/*/
+data/*/*
+!data/*/*/
+!data/*/*/transcript.json
+data/*/*/candidates.json
+data/*/*/clips/
 *.mp4
 *.wav
 *.mkv

@@ -4,8 +4,10 @@ These are the contract. Every stage reads and writes these, so they can be
 built and tested independently.
 """
 
-from dataclasses import dataclass, field
 import hashlib
+import json
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,7 +54,28 @@ class Transcript:
     def speakers(self) -> list[str]:
         return sorted({s.speaker for s in self.segments if s.speaker})
 
-    # TODO(phase-0): to_json / from_json so transcripts round-trip to disk
+    def to_json(self, path: Path) -> None:
+        path.write_text(json.dumps(asdict(self), indent=2))
+
+    @classmethod
+    def from_json(cls, path: Path) -> "Transcript":
+        data = json.loads(path.read_text())
+        segments = [
+            Segment(
+                start_ms=s["start_ms"],
+                end_ms=s["end_ms"],
+                text=s["text"],
+                speaker=s.get("speaker"),
+                words=[Word(**w) for w in s.get("words", [])],
+            )
+            for s in data["segments"]
+        ]
+        return cls(
+            episode_id=data["episode_id"],
+            segments=segments,
+            language=data.get("language"),
+            model=data.get("model", ""),
+        )
 
 
 @dataclass
