@@ -21,13 +21,15 @@ TODO(phase-2):
 """
 
 import argparse
+import json
+from dataclasses import asdict
 
 from dotenv import load_dotenv
 
 from .ingest.download import download, extract_audio, probe
-from .models import Transcript
+from .models import SpeakerTurn, Transcript
 from .storage.paths import audio_path as audio_file
-from .storage.paths import episode_dir, transcript_path
+from .storage.paths import diarization_path, episode_dir, transcript_path
 from .transcribe.align import assign_speakers
 from .transcribe.asr import transcribe
 from .transcribe.diarize import diarize
@@ -59,8 +61,16 @@ def _cmd_asr(show: str, episode: str) -> int:
     print("transcribing...")
     segments = transcribe(audio)
 
+    turns_path = diarization_path(show, episode)
     try:
-        turns = diarize(audio)
+        if turns_path.exists():
+            turns = [SpeakerTurn(**t) for t in json.loads(turns_path.read_text())]
+            print(f"using cached diarization at {turns_path}")
+        else:
+            turns = diarize(audio)
+            # Written immediately: diarization is the slowest local step, so a
+            # bug or interrupt further down should never throw this away.
+            turns_path.write_text(json.dumps([asdict(t) for t in turns]))
         segments = assign_speakers(segments, turns)
     except Exception as exc:  # noqa: BLE001 -- diarize() is meant to degrade gracefully
         print(f"diarization skipped ({exc}); transcript will be unlabeled")

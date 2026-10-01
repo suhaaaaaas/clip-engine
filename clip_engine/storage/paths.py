@@ -2,6 +2,7 @@
 
     data/<show>/<episode>/source.mp4
     data/<show>/<episode>/audio.wav
+    data/<show>/<episode>/diarization.json
     data/<show>/<episode>/transcript.json
     data/<show>/<episode>/candidates.json
     data/<show>/<episode>/clips/<candidate_key>.mp4
@@ -28,6 +29,10 @@ def source_video_path(show: str, episode: str) -> Path:
 
 def audio_path(show: str, episode: str) -> Path:
     return episode_dir(show, episode) / "audio.wav"
+
+
+def diarization_path(show: str, episode: str) -> Path:
+    return episode_dir(show, episode) / "diarization.json"
 
 
 def transcript_path(show: str, episode: str) -> Path:
