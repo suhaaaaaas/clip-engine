@@ -59,9 +59,10 @@ def test_transcribe_cached_rerun_is_a_noop(whisper, audio, tmp_path):
 def test_transcribe_cache_is_keyed_by_model_and_audio(whisper, audio, tmp_path):
     transcribe_cached(audio, "ep", tmp_path, model_size="small")
     transcribe_cached(audio, "ep", tmp_path, model_size="medium")
+    transcribe_cached(audio, "ep", tmp_path, model_size="small", vocabulary=["Kawhi"])
     audio.write_bytes(b"different audio")
     transcribe_cached(audio, "ep", tmp_path, model_size="small")
-    assert whisper == ["small", "medium", "small"]
+    assert whisper == ["small", "medium", "small", "small"]
 
 
 def test_transcribe_cached_force_recomputes(whisper, audio, tmp_path):

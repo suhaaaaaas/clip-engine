@@ -3,8 +3,8 @@
 Word timings matter twice: captions are built from them, and clip boundaries
 snap to them so no clip starts mid-word.
 
-Results are cached by (audio hash, model size), so re-running is instant and
-switching model sizes never returns a stale transcript.
+Results are cached by (audio hash, vocabulary, model size), so re-running is
+instant and changing any of them never returns a stale transcript.
 
 TODO(phase-1): pick the default model size. Options:
   - small (current): ~15-30 min per 90-min episode on a laptop CPU; good
@@ -73,8 +73,13 @@ def transcribe_cached(
     vocabulary: list[str] | None = None,
     force: bool = False,
 ) -> Transcript:
-    """Unlabelled transcript, cached at cache_dir/asr_<model>_<hash8>.json."""
-    cache_path = cache_dir / f"asr_{model_size}_{audio_hash(audio_path)[:8]}.json"
+    """Unlabelled transcript, cached at cache_dir/asr_<model>_<hash8>.json.
+
+    The hash covers the audio and the vocabulary prompt, since both change
+    what Whisper writes.
+    """
+    key = hashlib.sha1(f"{audio_hash(audio_path)}\n{vocabulary or []}".encode()).hexdigest()
+    cache_path = cache_dir / f"asr_{model_size}_{key[:8]}.json"
     if cache_path.exists() and not force:
         return Transcript.from_json(cache_path)
 
