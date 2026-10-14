@@ -1,0 +1,67 @@
+# Club 520 -- NBA talk show with Jeff Teague.
+# Seeded from the one transcribed episode (data/club520/yEGEPpIlvgg).
+# Anything not listed falls back to the defaults in clip_engine/config.py.
+
+display_name = "Club 520"
+# TODO: the channel URL, not an episode URL. Not in data/ yet.
+source_url = ""
+
+# 4 people on camera. Diarization guessed 6 when unpinned, with three
+# labels holding only 2-17 segments each -- pinning this should fix that.
+num_speakers = 4
+
+# Whisper prompt + caption fixes. Spellings below are the real names; the
+# transcript shows what Whisper heard without them ("Kauai" 8x for Kawhi,
+# "Berry" 22x, likely RJ Barrett, "Holliday"). Verify against the audio and
+# add the hosts' names once you know them.
+vocabulary = [
+    "Jeff Teague",
+    "Club 520",
+    "Kawhi Leonard",
+    "LeBron",
+    "Luka",
+    "RJ Barrett",
+    "Paul George",
+    "Walker Kessler",
+    "Dillon Brooks",
+    "Rudy Gobert",
+    "Donovan Mitchell",
+    "Alex Caruso",
+    "Jrue Holiday",
+    "Evan Mobley",
+    "Harrison Barnes",
+    "Josh Hart",
+    "Derrick White",
+    "Raptors",
+    "76ers",
+    "Timberwolves",
+]
+
+# Fill in after listening: which diarization label is which host.
+# speaker_names = { SPEAKER_02 = "Jeff Teague" }
+
+# The humans pick the held-out episode (PHASE0.md). Never tune against it.
+held_out = []
+
+# Topic groups that recur in the transcript. keyword_hit scores the fraction
+# of groups a window touches.
+[keywords]
+contracts = ["trade", "max", "contract", "extension", "the bag", "deal"]
+rankings = ["best", "starting five", "top five", "mvp", "all-time", "better than"]
+winning = ["championship", "ring", "title", "finals"]
+
+# TODO(phase-1): club520-specific take markers. The generic defaults in
+# config.py barely fire here ("i'll say it" 0x, "hot take" 0x). Phrases that
+# do recur in this episode: "that's crazy" (11x), "listen" (5x), "nobody"
+# (4x), "no way" (3x), "respectfully" (2x). "bro" (146x) is filler, not a
+# marker. Options: keep the defaults, swap in the recurring phrases above,
+# or derive the list from the reasons you write while labelling golden/.
+# take_markers = ["that's crazy", "listen", "no way", "respectfully"]
+
+[weights]
+# All 1.0 until golden labels exist to tune against. See config.py.
+keyword_hit = 1.0
+take_markers = 1.0
+speaker_churn = 1.0
+density = 1.0
+audio_energy = 1.0
