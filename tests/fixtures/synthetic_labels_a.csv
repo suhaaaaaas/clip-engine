@@ -1,0 +1,4 @@
+start_s,end_s,reason,type
+10,40,"synthetic: host doubles down",hot_take
+100,130,"synthetic: three-way argument",argument
+300,330,"synthetic: one-liner lands",joke

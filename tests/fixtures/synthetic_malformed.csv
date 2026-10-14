@@ -1,0 +1,3 @@
+start_s,end_s,reason,type
+10,40,"synthetic: fine row",joke
+50,80,"synthetic: bad type",banter

@@ -1,0 +1,4 @@
+start_s,end_s,reason,type
+12,40,"synthetic: same take, trimmed",hot_take
+105,135,"synthetic: same argument, shifted",argument
+500,530,"synthetic: pick only b made",prediction
