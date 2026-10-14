@@ -1,7 +1,9 @@
 """One place that knows the layout, so no stage hardcodes a path.
 
+    data/<show>/<episode>/episode.json        title, duration, url
     data/<show>/<episode>/source.mp4
     data/<show>/<episode>/audio.wav
+    data/<show>/<episode>/asr_<model>_<hash>.json   unlabelled ASR cache
     data/<show>/<episode>/diarization.json
     data/<show>/<episode>/transcript.json
     data/<show>/<episode>/candidates.json
@@ -21,6 +23,10 @@ def episode_dir(show: str, episode: str) -> Path:
     d = DATA_ROOT / show / episode
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+def episode_meta_path(show: str, episode: str) -> Path:
+    return episode_dir(show, episode) / "episode.json"
 
 
 def source_video_path(show: str, episode: str) -> Path:

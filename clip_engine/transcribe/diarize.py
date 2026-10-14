@@ -1,20 +1,23 @@
 """Who spoke when (pyannote).
 
-Needs a HuggingFace token and acceptance of the model terms. Slow on CPU --
-expect several minutes for a long episode.
+Needs a HuggingFace token and acceptance of the model terms (three gated
+repos: speaker-diarization-3.1, segmentation-3.0, speaker-diarization-
+community-1). Slow on CPU -- about an hour for a 65-minute episode.
 
-Callers should treat this as best-effort: catch its exceptions and fall back
-to an unlabelled transcript rather than failing the whole ASR stage, since a
-missing token or a first-pass skip shouldn't block transcription.
-
-TODO(phase-1):
-  - [ ] cache results; this is the slowest local step
+diarize() raises on failure. diarize_cached() is what stages call: it caches
+the turns the moment they exist, and on failure logs and returns no turns,
+because an unlabelled transcript is still usable.
 """
 
+import json
+import logging
 import os
+from dataclasses import asdict
 from pathlib import Path
 
 from ..models import SpeakerTurn
+
+log = logging.getLogger(__name__)
 
 
 def diarize(audio_path: Path, num_speakers: int | None = None) -> list[SpeakerTurn]:
@@ -38,4 +41,23 @@ def diarize(audio_path: Path, num_speakers: int | None = None) -> list[SpeakerTu
         for turn, _, speaker in output.exclusive_speaker_diarization.itertracks(yield_label=True)
     ]
     turns.sort(key=lambda t: t.start_ms)
+    return turns
+
+
+def diarize_cached(
+    audio_path: Path,
+    cache_path: Path,
+    num_speakers: int | None = None,
+    force: bool = False,
+) -> list[SpeakerTurn]:
+    if cache_path.exists() and not force:
+        return [SpeakerTurn(**t) for t in json.loads(cache_path.read_text())]
+
+    try:
+        turns = diarize(audio_path, num_speakers)
+    except Exception as exc:  # noqa: BLE001 -- any failure degrades to unlabelled
+        log.warning("diarization skipped (%s); transcript will be unlabelled", exc)
+        return []
+
+    cache_path.write_text(json.dumps([asdict(t) for t in turns]))
     return turns

@@ -5,9 +5,8 @@ data/*
 !data/*/
 data/*/*
 !data/*/*/
+data/*/*/*
 !data/*/*/transcript.json
-data/*/*/candidates.json
-data/*/*/clips/
 *.mp4
 *.wav
 *.mkv
