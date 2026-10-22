@@ -20,8 +20,9 @@ from pathlib import Path
 
 from ..models import Segment, Transcript, Word
 
-DEFAULT_MODEL_SIZE = "small"
-
+#Setting model size to large-v3 for now. 
+#large-v3-turbo seems promising with similar performance as large but faster processing and less VRAM usage
+DEFAULT_MODEL_SIZE = "large-v3"
 
 def transcribe(
     audio_path: Path,
@@ -31,12 +32,13 @@ def transcribe(
     """Return (segments, detected language)."""
     from faster_whisper import WhisperModel
 
-    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+    model = WhisperModel(model_size, device="cuda", compute_type="float16")
     initial_prompt = ", ".join(vocabulary) if vocabulary else None
     raw_segments, info = model.transcribe(
         str(audio_path),
         word_timestamps=True,
         initial_prompt=initial_prompt,
+        vad_filter=True,
     )
 
     segments = []
