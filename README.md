@@ -48,6 +48,17 @@ writes a transcript, just with no speaker labels.
 
 `ffmpeg` must be on your PATH.
 
+With an Nvidia GPU, install the CUDA libraries so `clip asr` runs large-v3 on
+it (minutes per episode instead of half an hour):
+
+```bash
+pip install -e ".[gpu]"
+```
+
+`clip asr` checks at startup: no GPU, or the CUDA libraries missing, and it
+logs why and falls back to the `small` model on CPU. On Linux the libraries
+may also need to be on `LD_LIBRARY_PATH`; the fallback warning says when.
+
 ## Working on it
 
 ```bash

@@ -18,6 +18,12 @@ dependencies = [
 # Heavy; only needed for speaker labels and framing.
 diarize = ["pyannote.audio>=3.3", "torch>=2.3"]
 framing = ["opencv-python>=4.10", "scenedetect>=0.6"]
+# CUDA 12 cuBLAS + cuDNN 9 for faster-whisper on an Nvidia GPU. Without them
+# `clip asr` falls back to CPU. NVIDIA ships no macOS wheels, so skipped there.
+gpu = [
+    "nvidia-cublas-cu12; sys_platform != 'darwin'",
+    "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
+]
 dev = ["pytest>=8.3", "ruff>=0.6"]
 
 [project.scripts]

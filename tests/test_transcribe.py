@@ -12,6 +12,7 @@ from types import ModuleType, SimpleNamespace
 import pytest
 
 from clip_engine.models import SpeakerTurn
+from clip_engine.transcribe import asr
 from clip_engine.transcribe.asr import transcribe_cached
 from clip_engine.transcribe.diarize import diarize_cached
 
@@ -39,6 +40,8 @@ def whisper(monkeypatch):
     fake = ModuleType("faster_whisper")
     fake.WhisperModel = WhisperModel
     monkeypatch.setitem(sys.modules, "faster_whisper", fake)
+    # Pin the hardware so the default model is the same on every machine.
+    monkeypatch.setattr(asr, "pick_device", lambda: asr.CPU)
     return loads
 
 
@@ -69,6 +72,29 @@ def test_transcribe_cached_force_recomputes(whisper, audio, tmp_path):
     transcribe_cached(audio, "ep", tmp_path)
     transcribe_cached(audio, "ep", tmp_path, force=True)
     assert whisper == ["small", "small"]
+
+
+# pick_device
+
+
+def test_pick_device_uses_cpu_without_a_gpu(monkeypatch):
+    monkeypatch.setattr(asr, "_cuda_device_count", lambda: 0)
+    assert asr.pick_device() == asr.CPU
+
+
+def test_pick_device_falls_back_to_cpu_when_cuda_libs_are_missing(monkeypatch, caplog):
+    monkeypatch.setattr(asr, "_cuda_device_count", lambda: 1)
+    monkeypatch.setattr(asr, "_missing_cuda_libs", lambda: ["cublas64_12.dll"])
+    assert asr.pick_device() == asr.CPU
+    assert "cublas64_12.dll" in caplog.text
+    assert ".[gpu]" in caplog.text
+
+
+def test_pick_device_uses_gpu_when_everything_loads(monkeypatch):
+    monkeypatch.setattr(asr, "_cuda_device_count", lambda: 1)
+    monkeypatch.setattr(asr, "_missing_cuda_libs", list)
+    assert asr.pick_device() == asr.GPU
+    assert asr.GPU.model_size == "large-v3"
 
 
 def fake_pyannote(monkeypatch, pipeline_factory):
